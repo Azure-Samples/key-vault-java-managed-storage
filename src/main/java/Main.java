@@ -18,10 +18,10 @@ public class Main {
         msakSamples.getStorageAccounts();
         msakSamples.deleteStorageAccount();
 
-        SasDefinitionSample sample2 = new SasDefinitionSample();
-        sample2.createAccountSasDefinition();
-        sample2.createBlobSasDefinition();
-        sample2.getSasDefinition();
+        SasDefinitionSample sasDefSample = new SasDefinitionSample();
+        sasDefSample.createAccountSasDefinition();
+        sasDefSample.createBlobSasDefinition();
+        sasDefSample.getSasDefinition();
     }
 
 }
