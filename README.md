@@ -1,57 +1,52 @@
-# Project Name
+---
+services: key-vault
+platforms: java
+author: tiffanyachen
+---
 
-(short, 1-3 sentenced, description of the project)
+# Managed Storage Authentication sample for Azure Key Vault using the Azure Key Vault SDK
 
-## Features
+This sample repo includes sample code demonstrating common mechanisms for managing storage account keys using Key Vault.
 
-This project framework provides the following features:
+# Samples in this repo
+* KeyVaultManagedStorageSample
+  * demonstrateSTorageAccountManagement - creates a storage account and then adds the storage account to the vault to manage its keys.
+  * updateStorageAccount - updates a storage account in the vault
+  * regenerateStorageAccountKeys - regenerates a key of a storage account managed by the vault
+  * getStorageAccounts - list the storage accounts in the vault, then gets each
+  * deletStorageAccount - deletes a storage account from the vault
+* SasDefinitionSample
+  * createAccountSasDefinition - creates an account SAS definition to manage storage account and its entities
+  * createBlobSasDefinition - creates a service SAS definition to manage access to a blob container
+  * getSasDefinition - lists and gets each of the sas definitions for this account
 
-* Feature 1
-* Feature 2
-* ...
+## Running the samples
+1. If not installed, install [Java](https://www.java.com/en/download/help/download_options.xml).
 
-## Getting Started
+2. Clone the repository.
+```
+git clone https://github.com/Azure-Samples/key-vault-java-authentication.git
+```
+3. Create an Azure service principal, using
+[Azure CLI](http://azure.microsoft.com/documentation/articles/resource-group-authenticate-service-principal-cli/),
+[PowerShell](http://azure.microsoft.com/documentation/articles/resource-group-authenticate-service-principal/)
+or [Azure Portal](http://azure.microsoft.com/documentation/articles/resource-group-create-service-principal-portal/).
+Note that if you wish to authenticate with the certificate authenticator the certificate should be saved locally.
 
-### Prerequisites
+4. Export these environment variables into your current shell or IDE.
+```
+    AZURE_TENANT_ID={your tenant id}
+    RESOURCE_GROUP={your resource group}
+```
 
-(ideally very short, if any)
-
-- OS
-- Library version
-- ...
-
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
-
-### Quickstart
-(Add steps to get up and running quickly)
-
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
+5. Run main.java for a sample run through. This project uses maven so you can do so either through an IDE or on the command line.
 
 
-## Demo
+## More information
 
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+* [What is Key Vault?](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis)
+* [Get started with Azure Key Vault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-get-started)
+* [Azure Key Vault General Documentation](https://docs.microsoft.com/en-us/azure/key-vault/)
+* [Azure Key Vault REST API Reference](https://docs.microsoft.com/en-us/rest/api/keyvault/)
+* [Azure SDK for Java Documentation](https://docs.microsoft.com/en-us/java/api/overview/azure/keyvault)
+* [Azure Active Directory Documenation](https://docs.microsoft.com/en-us/azure/active-directory/)
