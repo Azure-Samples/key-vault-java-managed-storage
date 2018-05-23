@@ -31,7 +31,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
 
 
     /**
-     * Creates an account sas definition, to managae storage account and its entities.
+     * Creates an account sas definition, to manage storage account and its entities.
      */
     public void createAccountSasDefinition() throws ParseException, URISyntaxException, StorageException, InvalidKeyException, IOException {
 
@@ -146,7 +146,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
     }
 
     /**
-     * List and get each of the sas definitions for the account.
+     * Lists and gets each of the sas definitions for the account.
      */
     public void getSasDefinition() {
         System.out.println("List and get sas definitions for the storage account");
