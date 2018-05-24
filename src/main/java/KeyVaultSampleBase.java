@@ -94,7 +94,6 @@ public class KeyVaultSampleBase {
         try {
             final AuthenticationContext context = new AuthenticationContext(authorization, false, service);
 
-
             // The key vault storage methods must be called by an authenticated user (not a service principal)
             // so all authentication is through this device code authentication flow.
             Future<AuthenticationResult> future = null;
@@ -102,9 +101,7 @@ public class KeyVaultSampleBase {
             DeviceCode code = deviceFuture.get();
             System.out.println("###############################################################");
             System.out.println("To continue with the test run, please do the following:");
-            System.out.printf("Navigate to %s: %n", code.getVerificationUrl());
-            System.out.printf("Insert the following user code: %s%n", code.getUserCode());
-            System.out.println("Login with your name and password credentials");
+            System.out.println(code.getMessage());
             System.out.println("Press any key here when you return from entering your credentials.");
 
             // acquireTokenByDeviceCode doesn't actually wait on an actual response;

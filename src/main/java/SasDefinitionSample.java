@@ -40,6 +40,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         // template_uri for an account sas definition is the intended sas token signed with an arbitrary key.
         // We create the generateSharedAccessSignature method in CloudStorageAccount to generate an account sas token.
         StorageCredentials sas = new StorageCredentialsAccountAndKey(STORAGE_ACCOUNT_NAME, "00000001");
+        // Note that the key passed in is just a dummy key such that we can generate the correct signature for the template.
         CloudStorageAccount account = new CloudStorageAccount(sas);
 
         //Create a new policy
@@ -102,6 +103,8 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
 
         // Create a template sas token for a container
         StorageCredentials sas = new StorageCredentialsAccountAndKey(STORAGE_ACCOUNT_NAME, "00000001");
+        // Note that the key passed in is just a dummy key such that we can generate the correct signature for the template.
+
         CloudStorageAccount cloudStorageAccount = new CloudStorageAccount(sas);
         CloudBlobClient cloudBlobClient = cloudStorageAccount.createCloudBlobClient();
         CloudBlobContainer cloudStorageBlob  = cloudBlobClient.getContainerReference("cloudstorageblob");
