@@ -1,13 +1,12 @@
 import com.microsoft.aad.adal4j.AuthenticationContext;
-import com.microsoft.aad.adal4j.AuthenticationException;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.aad.adal4j.DeviceCode;
 import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.AzureTokenCredentials;
 import com.microsoft.azure.keyvault.KeyVaultClient;
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.resources.fluentcore.arm.Region;
-import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext;
 import com.microsoft.rest.LogLevel;
 import com.microsoft.rest.credentials.ServiceClientCredentials;
 
@@ -19,42 +18,24 @@ public class KeyVaultSampleBase {
 
     protected static KeyVaultClient keyVaultClient;
     protected static Azure azure;
+
     protected static String kvAuthToken;
-    protected static String mgmtAuthToken;
     protected static String USER_OID;
-
-    public String key1 = SdkContext.randomResourceName("vault", 15);
-
+    protected static SampleTokenCredential mgmtCredentials;
 
     protected static final Region VAULT_REGION = Region.US_WEST;
     protected static final String AZURE_TENANT_ID = System.getenv("AZURE_TENANT_ID");
     protected static final String RESOURCE_GROUP = System.getenv("AZURE_RESOURCE_GROUP");
 
-    private final String MANAGEMENT_RESOURCE_ENDPOINT = "https://management.core.windows.net/";
-    private final String KEYVAULT_RESOURCE_ENDPOINT = "https://vault.azure.net";
-
     // This is the XPlat command line client id as it is available across all tenants and subscriptions.
-    private final String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
+    private final static String CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46";
 
 
-    public KeyVaultSampleBase() throws InterruptedException, ExecutionException, MalformedURLException, TimeoutException {
-        mgmtAuthToken = getAccessToken("https://login.windows.net/" + AZURE_TENANT_ID, MANAGEMENT_RESOURCE_ENDPOINT, CLIENT_ID);
-        authenticateToAzure();
-        try {
-            kvAuthToken = getAccessToken("https://login.windows.net/" + AZURE_TENANT_ID, KEYVAULT_RESOURCE_ENDPOINT, CLIENT_ID);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
+    public KeyVaultSampleBase() throws InterruptedException, ExecutionException, IOException, TimeoutException {
+        mgmtCredentials = new SampleTokenCredential(AzureEnvironment.AZURE, AZURE_TENANT_ID, CLIENT_ID );
+        azure = authenticateToAzure(mgmtCredentials);
         keyVaultClient = new KeyVaultClient(createCredentials());
     }
-
-
 
     /**
      * Creates a new KeyVaultCredential based on the access token obtained.
@@ -62,29 +43,34 @@ public class KeyVaultSampleBase {
      * @return
      */
     private static ServiceClientCredentials createCredentials() {
-        final String authToken = kvAuthToken;
         return new KeyVaultCredentials() {
 
             // Callback that supplies the token type and access token on request.
             @Override
             public String doAuthenticate(String authorization, String resource, String scope) {
-                return authToken;
+                try {
+                    // We only cache the auth token here, but for a longer running process the refresh token should also be cached.
+                    if (kvAuthToken == null) {
+                        kvAuthToken = getAccessToken(authorization, resource, CLIENT_ID);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (TimeoutException e) {
+                    e.printStackTrace();
+                }
+                return kvAuthToken;
             }
         };
     }
 
     // Private helper method that gets the access token for the authorization and
     // resource depending on which variables are supplied in the environment.
-    private static String getAccessToken(String authorization, String resource, String clientID)
+    public static String getAccessToken(String authorization, String resource, String clientID)
             throws InterruptedException, ExecutionException, MalformedURLException, TimeoutException {
-
-        if (kvAuthToken != null && resource.contains("vault")) {
-            return kvAuthToken;
-        }
-
-        if (mgmtAuthToken != null && resource.contains("management")) {
-            return mgmtAuthToken;
-        }
 
         AuthenticationResult result = null;
 
@@ -121,14 +107,7 @@ public class KeyVaultSampleBase {
         }
     }
 
-    private static void authenticateToAzure() throws InterruptedException, ExecutionException, MalformedURLException, TimeoutException {
-        SampleTokenCredential credentials = new SampleTokenCredential(AzureEnvironment.AZURE, AZURE_TENANT_ID, mgmtAuthToken );
-        try {
-            azure = Azure.configure().withLogLevel(LogLevel.BASIC).authenticate(credentials).withDefaultSubscription();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new AuthenticationException(
-                    "Error authenticating to Azure - check your credentials in your environment.");
-        }
+    private static Azure authenticateToAzure(AzureTokenCredentials credentials) throws InterruptedException, ExecutionException, IOException, TimeoutException {
+        return Azure.configure().withLogLevel(LogLevel.BASIC).authenticate(credentials).withDefaultSubscription();
     }
 }

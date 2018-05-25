@@ -7,7 +7,7 @@ import com.microsoft.azure.management.keyvault.Vault;
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext;
 import com.microsoft.azure.management.storage.StorageAccount;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +25,7 @@ public class KeyVaultManagedStorageSamples extends KeyVaultSampleBase {
     public String VAULT_URI;
     public String STORAGE_ACCOUNT_NAME;
 
-    public KeyVaultManagedStorageSamples() throws InterruptedException, ExecutionException, MalformedURLException, TimeoutException {
+    public KeyVaultManagedStorageSamples() throws InterruptedException, ExecutionException, IOException, TimeoutException {
         super();
     }
 

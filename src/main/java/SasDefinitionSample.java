@@ -25,7 +25,8 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
 
     private final SimpleDateFormat FORMATTER = new SimpleDateFormat("dd-MM-yyyy");
 
-    public SasDefinitionSample() throws InterruptedException, ExecutionException, MalformedURLException, TimeoutException {
+    public SasDefinitionSample() throws InterruptedException, ExecutionException, IOException, TimeoutException {
+        super();
         setUpStorageAccount();
     }
 
