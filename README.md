@@ -10,10 +10,10 @@ This sample repo includes sample code demonstrating common mechanisms for managi
 
 # Samples in this repo
 * KeyVaultManagedStorageSample
-  * demonstrateSTorageAccountManagement - creates a storage account and then adds the storage account to the vault to manage its keys.
+  * demonstrateStorageAccountManagement - creates a storage account and then adds the storage account to the vault to manage its keys
   * updateStorageAccount - updates a storage account in the vault
   * regenerateStorageAccountKeys - regenerates a key of a storage account managed by the vault
-  * getStorageAccounts - list the storage accounts in the vault, then gets each
+  * getStorageAccounts - lists the storage accounts in the vault, then gets each
   * deletStorageAccount - deletes a storage account from the vault
 * SasDefinitionSample
   * createAccountSasDefinition - creates an account SAS definition to manage storage account and its entities
