@@ -20,6 +20,12 @@ This sample repo includes sample code demonstrating common mechanisms for managi
   * createBlobSasDefinition - creates a service SAS definition to manage access to a blob container
   * getSasDefinition - lists and gets each of the sas definitions for this account
 
+## Prerequisites
+- Java 1.7+
+- An Azure Service Principal, through [Azure CLI](http://azure.microsoft.com/documentation/articles/resource-group-authenticate-service-principal-cli/),
+[PowerShell](http://azure.microsoft.com/documentation/articles/resource-group-authenticate-service-principal/)
+or [Azure Portal](http://azure.microsoft.com/documentation/articles/resource-group-create-service-principal-portal/).
+
 ## Running the samples
 1. If not installed, install [Java](https://www.java.com/en/download/help/download_options.xml).
 
