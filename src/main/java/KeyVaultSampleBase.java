@@ -21,7 +21,7 @@ public class KeyVaultSampleBase {
 
     protected static final Region VAULT_REGION = Region.US_WEST;
     protected static final String AZURE_TENANT_ID = System.getenv("AZURE_TENANT_ID");
-    protected static final String RESOURCE_GROUP = System.getenv("RESOURCE_GROUP");
+    protected static final String RESOURCE_GROUP = System.getenv("AZURE_RESOURCE_GROUP");
     protected static final String AZURE_SUBSCRIPTION_ID = System.getenv("AZURE_SUBSCRIPTION_ID");
 
     // This is the XPlat command line client id as it is available across all tenants and subscriptions.
