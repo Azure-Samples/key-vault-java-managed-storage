@@ -14,12 +14,11 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.sas.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 public class SasDefinitionSample extends KeyVaultSampleBase {
     private String STORAGE_ACCOUNT_NAME;
@@ -28,7 +27,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
     private StorageAccount storageAccount;
     private Vault vault;
 
-    public SasDefinitionSample() throws InterruptedException, ExecutionException, IOException, TimeoutException {
+    public SasDefinitionSample() {
         super();
         setUpStorageAccount();
     }
@@ -37,7 +36,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
     /**
      * Creates an account sas definition, to manage storage account and its entities.
      */
-    public void createAccountSasDefinition() {
+    public void createAccountSasDefinition() throws UnsupportedEncodingException {
         // In order to create an account sas definition, we have to first create a template. The
         // template_uri for an account sas definition is the intended sas token signed with an arbitrary key.
         // We create the generateSharedAccessSignature method in CloudStorageAccount to generate an account sas token.
@@ -77,7 +76,9 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         String text = "test blob data";
         System.out.printf("Uploading text: \"%s\" to blob%n", text);
         blockBlobClient.upload(new ByteArrayInputStream(text.getBytes()), text.getBytes().length);
-        System.out.println("Downloading text: " + blockBlobClient.downloadToFile("<download_file_path>"));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        blockBlobClient.download(outputStream);
+        System.out.println("Downloading text: " + new String(outputStream.toByteArray(),"UTF-8"));
         blockBlobClient.delete();
         System.out.println("Blob deleted");
     }
@@ -85,7 +86,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
     /**
      * Creates a service SAS definition with access to a blob container.
      */
-    public void createBlobSasDefinition() {
+    public void createBlobSasDefinition() throws UnsupportedEncodingException {
 
         // Create the blob sas definition template
         // The sas template uri for service sas definitions contains the storage entity uri with the template token
