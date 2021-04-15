@@ -10,7 +10,7 @@ import java.util.UUID;
 
 /**
  * Class to demonstrate Key Vault Managed Storage.
- * <p>
+ *
  * demonstrateStorageAccountManagement() must be run first to create a vault and storage account.
  */
 public class KeyVaultManagedStorageSamples extends KeyVaultSampleBase {
