@@ -124,7 +124,9 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         String text = "test blob data";
         System.out.printf("Uploading text: \"%s\" to blob%n", text);
         blockBlobClient.upload(new ByteArrayInputStream(text.getBytes()), text.getBytes().length);
-        System.out.println("Downloading text: " + blockBlobClient.downloadToFile("<download_file_path>"));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        blockBlobClient.download(outputStream);
+        System.out.println("Downloading text: " + new String(outputStream.toByteArray(),"UTF-8"));
 
     }
 

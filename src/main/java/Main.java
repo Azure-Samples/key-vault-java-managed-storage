@@ -1,10 +1,8 @@
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException, IOException, TimeoutException {
+    public static void main(String[] args) throws IOException {
         KeyVaultManagedStorageSamples msakSamples = new KeyVaultManagedStorageSamples();
         msakSamples.demonstrateStorageAccountManagement();
         msakSamples.updateStorageAccount();

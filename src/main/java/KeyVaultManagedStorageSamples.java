@@ -5,11 +5,8 @@ import com.azure.resourcemanager.storage.models.*;
 import com.azure.security.keyvault.keys.models.*;
 import com.azure.security.keyvault.keys.models.KeyType;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Class to demonstrate Key Vault Managed Storage.
@@ -24,7 +21,7 @@ public class KeyVaultManagedStorageSamples extends KeyVaultSampleBase {
     private StorageAccount storageAccount;
     private com.azure.resourcemanager.keyvault.models.Vault vault;
 
-    public KeyVaultManagedStorageSamples() throws InterruptedException, ExecutionException, IOException, TimeoutException {
+    public KeyVaultManagedStorageSamples() {
         super();
     }
 
