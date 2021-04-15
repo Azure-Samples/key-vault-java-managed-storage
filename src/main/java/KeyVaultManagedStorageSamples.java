@@ -1,6 +1,7 @@
 import com.azure.resourcemanager.authorization.models.RoleDefinition;
 import com.azure.resourcemanager.keyvault.models.Key;
 import com.azure.resourcemanager.keyvault.models.KeyPermissions;
+import com.azure.resourcemanager.keyvault.models.Vault;
 import com.azure.resourcemanager.storage.models.*;
 import com.azure.security.keyvault.keys.models.*;
 import com.azure.security.keyvault.keys.models.KeyType;
@@ -19,7 +20,7 @@ public class KeyVaultManagedStorageSamples extends KeyVaultSampleBase {
     public String VAULT_URI;
     public String STORAGE_ACCOUNT_NAME;
     private StorageAccount storageAccount;
-    private com.azure.resourcemanager.keyvault.models.Vault vault;
+    private Vault vault;
 
     public KeyVaultManagedStorageSamples() {
         super();
