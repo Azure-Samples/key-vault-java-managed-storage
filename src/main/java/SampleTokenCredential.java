@@ -1,30 +1,41 @@
-import com.microsoft.azure.AzureEnvironment;
-import com.microsoft.azure.credentials.AzureTokenCredentials;
+import com.azure.core.credential.AccessToken;
+import com.azure.core.credential.TokenCredential;
+import com.azure.core.credential.TokenRequestContext;
+import com.azure.identity.implementation.util.ScopeUtil;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.OffsetDateTime;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 /**
  * Wrapper class that supplies and caches the token for Azure authentication.
  */
-public class SampleTokenCredential extends AzureTokenCredentials {
-    static String authorization;
-    static String mgmtToken;
-    static String authClientId;
+public class SampleTokenCredential implements TokenCredential {
+    private String authorization;
+    private AccessToken mainAccessToken;
+    private AccessToken subAccessToken;
+    private String authClientId;
 
-    public SampleTokenCredential(AzureEnvironment environment, String domain, String clientId) {
-        super(environment, domain);
-        authorization = "https://login.windows.net/" + domain;
-        authClientId = clientId;
+    public SampleTokenCredential(String tenantId, String authClientId) {
+        authorization = "https://login.windows.net/" + tenantId;
+        this.authClientId = authClientId;
     }
 
     @Override
-    public String getToken(String resource) throws IOException {
+    public Mono<AccessToken> getToken(TokenRequestContext resource) {
         try {
-            if (mgmtToken == null) {
+            if (mainAccessToken == null && !"https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes()))) {
                 // We only cache the auth token here, but for a longer running process the refresh token should also be cached.
-                mgmtToken = KeyVaultSampleBase.getAccessToken(authorization, resource, authClientId);
+                String mgmtToken = KeyVaultSampleBase.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
+                this.mainAccessToken = new AccessToken(mgmtToken, OffsetDateTime.now().plusDays(1));
+            } else if (subAccessToken == null && "https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes()))  ) {
+                String mgmtToken = KeyVaultSampleBase.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
+                this.subAccessToken = new AccessToken(mgmtToken, OffsetDateTime.now().plusDays(1));
+                return Mono.just(subAccessToken);
+            } if ( "https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes())) ) {
+                return Mono.just(subAccessToken);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -32,7 +43,9 @@ public class SampleTokenCredential extends AzureTokenCredentials {
             e.printStackTrace();
         } catch (TimeoutException e) {
             e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
-        return mgmtToken;
+        return Mono.just(this.mainAccessToken);
     }
 }
