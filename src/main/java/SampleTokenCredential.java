@@ -28,10 +28,10 @@ public class SampleTokenCredential implements TokenCredential {
         try {
             if (mainAccessToken == null && !"https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes()))) {
                 // We only cache the auth token here, but for a longer running process the refresh token should also be cached.
-                String mgmtToken = KeyVaultSampleBase.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
+                String mgmtToken = AccessTokenUtils.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
                 this.mainAccessToken = new AccessToken(mgmtToken, OffsetDateTime.now().plusDays(1));
             } else if (subAccessToken == null && "https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes()))  ) {
-                String mgmtToken = KeyVaultSampleBase.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
+                String mgmtToken = AccessTokenUtils.getAccessToken(authorization, ScopeUtil.scopesToResource(resource.getScopes()), authClientId);
                 this.subAccessToken = new AccessToken(mgmtToken, OffsetDateTime.now().plusDays(1));
                 return Mono.just(subAccessToken);
             } if ( "https://vault.azure.net".equals(ScopeUtil.scopesToResource(resource.getScopes())) ) {

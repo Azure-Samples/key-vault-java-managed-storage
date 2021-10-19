@@ -7,11 +7,17 @@ import com.azure.security.keyvault.keys.models.KeyCurveName;
 import com.azure.security.keyvault.keys.models.KeyOperation;
 import com.azure.security.keyvault.keys.models.KeyType;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import com.azure.storage.common.sas.*;
+import com.azure.storage.common.sas.AccountSasPermission;
+import com.azure.storage.common.sas.AccountSasResourceType;
+import com.azure.storage.common.sas.AccountSasService;
+import com.azure.storage.common.sas.AccountSasSignatureValues;
+import com.azure.storage.common.sas.SasProtocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,9 +27,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class SasDefinitionSample extends KeyVaultSampleBase {
-    private String STORAGE_ACCOUNT_NAME;
-    private String VAULT_URI;
-    private String VAULT_NAME;
+    private String storageAccountName;
+    private String vaultUri;
+    private String vaultName;
     private StorageAccount storageAccount;
     private Vault vault;
 
@@ -40,7 +46,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         // In order to create an account sas definition, we have to first create a template. The
         // template_uri for an account sas definition is the intended sas token signed with an arbitrary key.
         // We create the generateSharedAccessSignature method in CloudStorageAccount to generate an account sas token.
-        StorageSharedKeyCredential sas = new StorageSharedKeyCredential(STORAGE_ACCOUNT_NAME, storageAccount.getKeys().get(0).value());
+        StorageSharedKeyCredential sas = new StorageSharedKeyCredential(storageAccountName, storageAccount.getKeys().get(0).value());
 
         //Create a new policy
         AccountSasService accountSasService = AccountSasService.parse("bfqt");
@@ -53,26 +59,24 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
                         accountSasService,
                         accountSasResourceType);
         //Generate a signature based off of the policy and account.
-        com.azure.storage.blob.BlobServiceClient blobServiceClient
-                = new com.azure.storage.blob.BlobServiceClientBuilder()
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(storageAccount.endPoints().primary().blob())
                 .credential(sas).buildClient();
         String sasSignature = blobServiceClient.generateAccountSas(accountSasSignatureValues);
         System.out.println("Generated sasSignature " + sasSignature);
 
         // Generating new cloud storage account object off of the new acctSasToken
-        blobServiceClient = new com.azure.storage.blob.BlobServiceClientBuilder()
+        blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(storageAccount.endPoints().primary().blob())
                 .sasToken(sasSignature).buildClient();
-        BlobContainerClient blobContainerClient
-                = blobServiceClient.getBlobContainerClient("cloudstorageblob");
+        BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient("cloudstorageblob");
         if (!blobContainerClient.exists()) {
             blobContainerClient.create();
         }
 
         // Creating a blob with the account storage token.
         System.out.println("Creating container: " + blobContainerClient.getBlobContainerName());
-        BlockBlobClient blockBlobClient =blobContainerClient.getBlobClient("blobName").getBlockBlobClient();
+        BlockBlobClient blockBlobClient = blobContainerClient.getBlobClient("blobName").getBlockBlobClient();
         String text = "test blob data";
         System.out.printf("Uploading text: \"%s\" to blob%n", text);
         blockBlobClient.upload(new ByteArrayInputStream(text.getBytes()), text.getBytes().length);
@@ -94,11 +98,10 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         // be used for all other storage service, i.e. File, Queue, table
 
         // Create a template sas token for a container
-        StorageSharedKeyCredential sas = new StorageSharedKeyCredential(STORAGE_ACCOUNT_NAME, storageAccount.getKeys().get(0).value());
+        StorageSharedKeyCredential sas = new StorageSharedKeyCredential(storageAccountName, storageAccount.getKeys().get(0).value());
         // Note that the key passed in is just a dummy key such that we can generate the correct signature for the template.
 
-        com.azure.storage.blob.BlobServiceClient blobServiceClient
-                = new com.azure.storage.blob.BlobServiceClientBuilder()
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(storageAccount.endPoints().primary().blob())
                 .credential(sas).buildClient();
         BlobContainerClient blobContainerClient
@@ -113,8 +116,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
                         setProtocol(SasProtocol.HTTPS_HTTP);
         String sasSignature = blobContainerClient.generateSas(blobServiceSasSignatureValues);
 
-        blobServiceClient
-                = new com.azure.storage.blob.BlobServiceClientBuilder()
+        blobServiceClient = new BlobServiceClientBuilder()
                 .endpoint(storageAccount.endPoints().primary().blob())
                 .sasToken(sasSignature).buildClient();
         BlockBlobClient blockBlobClient =
@@ -134,14 +136,14 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
     // This is the same method as the one in KeyVaultManagedStorage - just sets up a storage account.
     private void setUpStorageAccount() {
 
-        VAULT_NAME = azureResourceManager.resourceGroups().manager().internalContext().randomResourceName("vault", 15);
-        STORAGE_ACCOUNT_NAME = azureResourceManager.resourceGroups().manager().internalContext().randomResourceName("storage", 15);
+        vaultName = azureResourceManager.resourceGroups().manager().internalContext().randomResourceName("vault", 15);
+        storageAccountName = azureResourceManager.resourceGroups().manager().internalContext().randomResourceName("storage", 15);
 
         System.out.println("Creating new storage account");
         storageAccount = azureResourceManager
-                .storageAccounts().define(STORAGE_ACCOUNT_NAME)
-                .withRegion(VAULT_REGION)
-                .withExistingResourceGroup(RESOURCE_GROUP)
+                .storageAccounts().define(storageAccountName)
+                .withRegion(AccessTokenUtils.VAULT_REGION)
+                .withExistingResourceGroup(AccessTokenUtils.RESOURCE_GROUP)
                 .withFileEncryption()
                 .withBlobEncryption()
                 .withGeneralPurposeAccountKindV2()
@@ -174,11 +176,11 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
 
         System.out.println("Creating new vault");
         vault = azureResourceManager
-                .vaults().define(VAULT_NAME)
-                .withRegion(VAULT_REGION)
-                .withExistingResourceGroup(RESOURCE_GROUP)
+                .vaults().define(vaultName)
+                .withRegion(AccessTokenUtils.VAULT_REGION)
+                .withExistingResourceGroup(AccessTokenUtils.RESOURCE_GROUP)
                 .defineAccessPolicy()
-                .forObjectId(USER_OID)
+                .forObjectId(AccessTokenUtils.getUserOid())
                 .allowSecretAllPermissions()
                 .allowStorageAllPermissions()
                 .allowCertificateAllPermissions()
@@ -191,7 +193,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
                 .withPurgeProtectionEnabled()
                 .withSoftDeleteEnabled()
                 .create();
-        VAULT_URI = vault.vaultUri();
+        vaultUri = vault.vaultUri();
         Key keyVaultKey = vault.keys()
                 .define("key1")
                 .withKeyTypeToCreate(KeyType.RSA)
@@ -209,7 +211,7 @@ public class SasDefinitionSample extends KeyVaultSampleBase {
         storageAccount.update()
                 .enableBlobPublicAccess()
                 .enableSharedKeyAccess()
-                .withEncryptionKeyFromKeyVault(VAULT_URI, keyVaultKey.name(), null).apply();
+                .withEncryptionKeyFromKeyVault(vaultUri, keyVaultKey.name(), null).apply();
     }
 
 }
